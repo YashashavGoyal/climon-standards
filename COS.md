@@ -1,6 +1,6 @@
 # Climon Output Standard (COS)
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Status:** Unified Specification  
 
 The Climon Output Standard (COS) defines a unified behavior and output style for all CLI tools within the Climon ecosystem. Regardless of the language used (TypeScript, Python, Go), every tool must follow these rules to ensure a consistent, professional developer experience.
@@ -51,7 +51,7 @@ Maintain a consistent color scheme for status signaling.
 | **WARN** | Yellow | Non-critical issues or potential risks |
 | **ERROR** | Red | Failure that stops the execution |
 
-> [!IMPORTANT]
+> [!IMPORTANT]\
 > Colors must be disabled automatically when the output is piped or when the `--no-color` flag is used.
 
 ### 3.2 Symbols & Emojis
@@ -60,6 +60,11 @@ Use professional symbols to enhance scannability:
 - `ℹ` or `[INFO]` for informational notes.
 - `⚠` or `[WARN]` for warnings.
 - `✖` or `[ERROR]` for failures.
+
+### 3.3 Modern Features
+Tools should leverage modern terminal features when available:
+- **Hyperlinks:** Use OSC 8 terminal sequences for clickable links (e.g., in error suggestions or documentation references).
+- **TrueColor:** Support 24-bit color when the terminal supports it, falling back to 256 or 16 colors otherwise.
 
 ---
 
@@ -113,28 +118,13 @@ For tools requiring user input or showing long-running tasks:
 
 ---
 
-## 7. Environment Variables
-
-Standard variables to control CLI behavior globally:
-
-| Variable | Effect |
-| :--- | :--- |
-| `CLIMON_JSON` | If set to `true`, forces JSON mode. |
-| `CLIMON_QUIET` | If set to `true`, forces quiet mode. |
-| `CLIMON_NO_COLOR` | If set to `true`, disables all styling. |
-| `CLIMON_CONFIG` | Path to a custom configuration file. |
+## 7. Configuration Files
+Defined and discussed in detail at [Climon Config Standard (CCS)](CCS.md#1-configuration-management).
 
 ---
 
-## 8. Configuration Files
-
-Tools must search for configuration in this order:
-1. **Explicit Flag:** `--config <path>`
-2. **Project Config:** `.climon.yaml` (in current directory)
-3. **Tool-Specific Global:** `~/.<tool_name>/config.json` or `.yaml` (e.g., `~/.pycurl/config.json`)
-4. **Ecosystem Global:** `~/.climon/config.json` or `yaml`
-
-**Priority:** Flag > Project Config > Tool Global > Ecosystem Global > Defaults.
+## 8. Environment
+Global environment variables are defined in the [Climon Config Standard (CCS)](CCS.md#3-environment-variables).
 
 ---
 
@@ -149,6 +139,9 @@ Predictable exit codes are critical for shell scripting.
 | **2** | Invalid input/Arguments |
 | **3** | Network/Connection failure |
 | **4** | Missing dependency/Permissions |
+| **5** | Operation timeout |
+| **6** | Authentication/Authorization failure |
+| **130** | User-initiated cancellation (Ctrl+C) |
 
 ---
 
@@ -164,16 +157,30 @@ Errors must be actionable. A good error message follows the **P-S-A** pattern:
 
 ---
 
-## 11. Versioning
+## 11. Versioning & Updates
 
 Tools must follow [Semantic Versioning 2.0.0](https://semver.org/):
 - **MAJOR:** Breaking changes (e.g., CLI flag removals).
 - **MINOR:** New features, backward-compatible.
 - **PATCH:** Bug fixes, backward-compatible.
 
+### 11.1 Update Notifications
+Tools should automatically check for updates (at most once per 24 hours).
+- **Behavior:** Print a non-intrusive update notice to `stderr` if a newer version is available.
+- **Format:** `[INFO] A new version (vX.Y.Z) is available. Run 'tool update' to upgrade.`
+
 ---
 
-## 12. Documentation
+## 12. Telemetry
+
+To improve the ecosystem, tools may collect anonymous usage data.
+- **Opt-out:** Must provide a `--no-telemetry` flag and respect `CLIMON_TELEMETRY=false`.
+- **Privacy:** Never collect PII, credentials, or local file paths.
+- **Transparency:** Document what is collected in the tool's README or docs.
+
+---
+
+## 13. Documentation
 
 Every Climon tool must provide accessible, high-quality documentation.
 
@@ -188,7 +195,7 @@ This command should render the project's Markdown documentation directly in the 
 
 ---
 
-## 13. Workflow Documentation
+## 14. Workflow Documentation
 
 Workflow documentation is designed to help users achieve specific outcomes by chaining multiple commands and configurations.
 
